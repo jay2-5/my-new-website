@@ -1,0 +1,46 @@
+# Robots.txt for Starvico - AI Automation Agency
+# https://starvico.com/robots.txt
+
+User-agent: *
+
+# Allow crawling of main pages
+Allow: /
+Allow: /consultation
+Allow: /services/
+Allow: /about
+Allow: /contact
+Allow: /blog
+
+# Disallow crawling of technical/admin files
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /.env
+Disallow: /package.json
+Disallow: /package-lock.json
+Disallow: /vite.config.ts
+Disallow: /tsconfig.json
+Disallow: /tailwind.config.js
+Disallow: /postcss.config.js
+Disallow: /eslint.config.js
+
+# Disallow crawling of build/development files
+Disallow: /dist/
+Disallow: /.vite/
+Disallow: /.cache/
+
+# Disallow crawling of form submission endpoints (if any)
+Disallow: /api/submit-consultation
+Disallow: /api/
+
+# Allow crawling of static assets
+Allow: /assets/
+Allow: /images/
+Allow: /css/
+Allow: /js/
+
+# Sitemap location
+Sitemap: https://starvico.com/sitemap.xml
+
+# Crawl delay (optional - helps prevent server overload)
+Crawl-delay: 1
