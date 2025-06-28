@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, User, Building, Mail, Bot, Phone, MessageSquare, Users, Plus, Zap, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { submitConsultation, type ConsultationData } from '@/lib/supabase';
+import { submitConsultation, type ConsultationData } from '@/lib/form-handler';
 
 interface ConsultationPageProps {
   onBack: () => void;
@@ -276,8 +276,8 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
     setIsSubmitting(true);
     
     try {
-      // Prepare data for Supabase
-      const consultationData: Omit<ConsultationData, 'id' | 'created_at' | 'updated_at'> = {
+      // Prepare data for submission
+      const consultationData: Omit<ConsultationData, 'id' | 'created_at'> = {
         name: formData.name.trim(),
         business_name: formData.businessName.trim() || undefined,
         email: formData.email.trim(),
@@ -287,7 +287,7 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
         description: formData.description.trim() || undefined
       };
 
-      // Submit to Supabase
+      // Submit the form
       const result = await submitConsultation(consultationData);
       
       console.log('Consultation submitted successfully:', result);
