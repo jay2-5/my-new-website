@@ -25,6 +25,7 @@ interface FormErrors {
   interestedServices?: string;
   problems?: string;
   otherService?: string;
+  general?: string;
 }
 
 interface FieldValidation {
@@ -63,6 +64,7 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Initialize analytics
   const {
@@ -87,8 +89,8 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
         if (value.trim().length < 2) {
           return { isValid: false, error: 'Name must be at least 2 characters long', touched: true };
         }
-        if (value.trim().length > 50) {
-          return { isValid: false, error: 'Name must be less than 50 characters', touched: true };
+        if (value.trim().length > 100) {
+          return { isValid: false, error: 'Name must be less than 100 characters', touched: true };
         }
         return { isValid: true, touched: true };
 
@@ -109,8 +111,8 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
         if (!Array.isArray(value) || value.length === 0) {
           return { isValid: false, error: 'Please select at least one service you\'re interested in', touched: true };
         }
-        if (value.length > 5) {
-          return { isValid: false, error: 'Please select no more than 5 services', touched: true };
+        if (value.length > 10) {
+          return { isValid: false, error: 'Please select no more than 10 services', touched: true };
         }
         return { isValid: true, touched: true };
 
@@ -122,8 +124,8 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
           if (value.trim().length < 10) {
             return { isValid: false, error: 'Please provide at least 10 characters describing the service', touched: true };
           }
-          if (value.length > 200) {
-            return { isValid: false, error: 'Description must be less than 200 characters', touched: true };
+          if (value.length > 500) {
+            return { isValid: false, error: 'Description must be less than 500 characters', touched: true };
           }
         }
         return { isValid: true, touched: true };
@@ -135,8 +137,8 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
         if (value.trim().length < 30) {
           return { isValid: false, error: `Please provide at least 30 characters (currently ${value.trim().length})`, touched: true };
         }
-        if (value.length > 1000) {
-          return { isValid: false, error: 'Description must be less than 1000 characters', touched: true };
+        if (value.length > 2000) {
+          return { isValid: false, error: 'Description must be less than 2000 characters', touched: true };
         }
         return { isValid: true, touched: true };
 
@@ -147,6 +149,9 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
 
   const handleFieldChange = (fieldName: string, value: any) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
+    
+    // Clear any previous submit errors
+    setSubmitError(null);
     
     // Validate field on change if it's been touched or if submit was attempted
     if (fieldValidation[fieldName]?.touched || submitAttempted) {
@@ -242,6 +247,7 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
     
     setSubmitAttempted(false);
     setSubmitSuccess(false);
+    setSubmitError(null);
     
     // Scroll to top of the page
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -250,6 +256,7 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitAttempted(true);
+    setSubmitError(null);
     
     if (!validateAllFields()) {
       // Track form validation errors
@@ -277,7 +284,7 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
     
     try {
       // Prepare data for submission
-      const consultationData: Omit<ConsultationData, 'id' | 'created_at'> = {
+      const consultationData: Omit<ConsultationData, 'id' | 'created_at' | 'updated_at'> = {
         name: formData.name.trim(),
         business_name: formData.businessName.trim() || undefined,
         email: formData.email.trim(),
@@ -286,6 +293,8 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
         problems: formData.problems.trim(),
         description: formData.description.trim() || undefined
       };
+
+      console.log('Submitting consultation data:', consultationData);
 
       // Submit the form
       const result = await submitConsultation(consultationData);
@@ -322,10 +331,22 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
     } catch (error) {
       console.error('Submission error:', error);
       
+      // Set user-friendly error message
+      let errorMessage = 'There was an error submitting your request. Please try again.';
+      
+      if (error instanceof Error) {
+        // Use the specific error message from our form handler
+        errorMessage = error.message;
+      }
+      
+      setSubmitError(errorMessage);
+      
       // Track submission error
       trackFormError('consultation_form', error instanceof Error ? error.message : 'submission_failed');
       
-      alert('There was an error submitting your request. Please try again.');
+      // Scroll to top to show error message
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
     } finally {
       setIsSubmitting(false);
     }
@@ -455,6 +476,23 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
             </p>
           </div>
 
+          {/* Error Message */}
+          {submitError && (
+            <div 
+              className="mb-6 p-4 bg-red-900/20 border border-red-500 rounded-lg"
+              role="alert"
+              aria-live="polite"
+            >
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="text-red-300 font-medium mb-1">Submission Error</h3>
+                  <p className="text-red-200 text-sm">{submitError}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Form Container */}
           <div 
             className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-2xl p-6 md:p-8 shadow-2xl"
@@ -502,7 +540,7 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
                   aria-describedby={`name-help ${getFieldStatus('name') === 'invalid' ? 'name-error' : ''}`}
                 />
                 <div id="name-help" className="sr-only">
-                  Enter your full name or first name. This field is required and must be between 2 and 50 characters.
+                  Enter your full name or first name. This field is required and must be between 2 and 100 characters.
                 </div>
                 {getFieldStatus('name') === 'invalid' && fieldValidation.name?.error && (
                   <div 
@@ -719,7 +757,7 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
                     aria-describedby={`other-service-help ${getFieldStatus('otherService') === 'invalid' ? 'other-service-error' : ''}`}
                   />
                   <div id="other-service-help" className="mt-1 text-xs text-gray-400">
-                    Provide details about the custom AI automation service you need (10-200 characters)
+                    Provide details about the custom AI automation service you need (10-500 characters)
                   </div>
                   {getFieldStatus('otherService') === 'invalid' && fieldValidation.otherService?.error && (
                     <div 
