@@ -3,11 +3,16 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.')
+// Create a mock client when environment variables are missing
+const createSupabaseClient = () => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('Supabase environment variables not found. Using mock client.')
+    return null
+  }
+  return createClient(supabaseUrl, supabaseAnonKey)
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createSupabaseClient()
 
 // Types for the consultations table
 export interface ConsultationData {
@@ -25,6 +30,10 @@ export interface ConsultationData {
 
 // Function to submit consultation form data
 export async function submitConsultation(data: Omit<ConsultationData, 'id' | 'created_at' | 'updated_at'>) {
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Please set up your environment variables.')
+  }
+
   const { data: result, error } = await supabase
     .from('consultations')
     .insert([data])
@@ -41,6 +50,10 @@ export async function submitConsultation(data: Omit<ConsultationData, 'id' | 'cr
 
 // Function to get all consultations (for admin use)
 export async function getConsultations() {
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Please set up your environment variables.')
+  }
+
   const { data, error } = await supabase
     .from('consultations')
     .select('*')
@@ -56,6 +69,10 @@ export async function getConsultations() {
 
 // Function to get consultation by ID
 export async function getConsultationById(id: string) {
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Please set up your environment variables.')
+  }
+
   const { data, error } = await supabase
     .from('consultations')
     .select('*')
