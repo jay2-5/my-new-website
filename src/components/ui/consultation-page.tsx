@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { ArrowLeft, User, Building, Mail, Bot, Phone, MessageSquare, Users, Plus, Zap, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, Building, Mail, Bot, Phone, MessageSquare, Users, Plus, Zap, AlertCircle, CheckCircle, Loader2, Home, Calendar } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ConsultationPageProps {
@@ -285,6 +285,9 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
       // Simulate form submission
       console.log('Form submitted:', formData);
       
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       // Track successful form submission
       trackFormSubmit('consultation_form');
       
@@ -303,13 +306,6 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
       
       // Show success state
       setSubmitSuccess(true);
-      
-      // Reset form after a delay
-      setTimeout(() => {
-        handleReset();
-        // Navigate back to home after successful submission
-        onBack();
-      }, 3000);
       
     } catch (error) {
       console.error('Submission error:', error);
@@ -350,26 +346,172 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
     return `${baseClasses} ${statusClasses[status]}`;
   };
 
-  // Show success message
+  // Show success message - now permanent with back button
   if (submitSuccess) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-8 h-8 text-white" />
+      <div className="min-h-screen bg-black text-white">
+        {/* Header with back button */}
+        <header 
+          className="relative z-10 px-4 md:px-6 py-6 md:py-8 border-b border-gray-700"
+          role="banner"
+          aria-label="Success page header"
+        >
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <nav 
+              className="flex items-center space-x-4"
+              role="navigation"
+              aria-label="Navigation"
+            >
+              <button
+                onClick={() => {
+                  trackButtonClick('back_to_home', 'success_page');
+                  onBack();
+                }}
+                className="p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                aria-label="Go back to home page"
+                type="button"
+              >
+                <ArrowLeft 
+                  className="w-5 h-5" 
+                  aria-hidden="true"
+                  focusable="false"
+                />
+              </button>
+              <div className="flex items-center space-x-3">
+                <div 
+                  className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
+                  role="img"
+                  aria-label="Starvico logo"
+                >
+                  <Zap 
+                    className="w-4 h-4 md:w-6 md:h-6 text-white" 
+                    aria-hidden="true"
+                    focusable="false"
+                  />
+                </div>
+                <h1 
+                  className="text-xl md:text-2xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent"
+                  aria-label="Starvico - AI Automation Agency"
+                >
+                  Starvico
+                </h1>
+              </div>
+            </nav>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Thank You!
-          </h2>
-          <p className="text-gray-200 mb-6">
-            Your consultation request has been submitted successfully. We'll get back to you within 24 hours.
-          </p>
-          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto">
+        </header>
+
+        {/* Success Content */}
+        <main className="flex items-center justify-center min-h-[calc(100vh-120px)] px-4">
+          <div className="text-center max-w-2xl mx-auto">
+            {/* Success Icon with Animation */}
+            <div className="relative mb-8">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-green-500/25">
+                <CheckCircle className="w-12 h-12 md:w-16 md:h-16 text-white animate-pulse" />
+              </div>
+              {/* Decorative rings */}
+              <div className="absolute inset-0 w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full border-2 border-green-400/30 animate-ping"></div>
+              <div className="absolute inset-2 w-20 h-20 md:w-28 md:h-28 mx-auto rounded-full border border-green-400/20 animate-ping" style={{ animationDelay: '0.5s' }}></div>
+            </div>
+
+            {/* Success Message */}
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+              Thank You!
+            </h2>
+            
+            <div className="space-y-4 mb-8">
+              <p className="text-xl md:text-2xl text-white font-semibold">
+                Your consultation request has been submitted successfully.
+              </p>
+              <p className="text-gray-200 text-lg md:text-xl leading-relaxed">
+                We'll get back to you within 24 hours to discuss your AI automation needs and schedule your consultation.
+              </p>
+            </div>
+
+            {/* What happens next section */}
+            <div className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-2xl p-6 md:p-8 mb-8">
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-6 flex items-center justify-center space-x-2">
+                <Calendar className="w-6 h-6 text-blue-400" />
+                <span>What happens next?</span>
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-white font-bold text-sm">1</span>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">Review</h4>
+                    <p className="text-gray-300 text-sm">Our team reviews your requirements and prepares a customized solution.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-white font-bold text-sm">2</span>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">Contact</h4>
+                    <p className="text-gray-300 text-sm">We'll reach out via email to schedule your consultation call.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-white font-bold text-sm">3</span>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold mb-1">Consultation</h4>
+                    <p className="text-gray-300 text-sm">We discuss your needs and present tailored AI automation solutions.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => {
+                  trackButtonClick('back_to_home_main', 'success_page');
+                  onBack();
+                }}
+                className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 focus:outline-none focus:ring-4 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-black"
+                aria-label="Return to homepage"
+              >
+                <div 
+                  className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300"
+                  aria-hidden="true"
+                ></div>
+                <div className="relative flex items-center space-x-3">
+                  <Home 
+                    className="w-6 h-6" 
+                    aria-hidden="true"
+                    focusable="false"
+                  />
+                  <span>Back to Home</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  trackButtonClick('submit_another', 'success_page');
+                  setSubmitSuccess(false);
+                  handleReset();
+                }}
+                className="px-8 py-4 text-lg font-semibold text-gray-200 border-2 border-gray-600 rounded-2xl hover:border-gray-400 hover:text-white transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-gray-500/50"
+                aria-label="Submit another consultation request"
+              >
+                Submit Another Request
+              </button>
+            </div>
+
+            {/* Contact info */}
+            <div className="mt-8 pt-6 border-t border-gray-700">
+              <p className="text-gray-400 text-sm">
+                Questions? Feel free to reach out to us directly.
+              </p>
+            </div>
           </div>
-          <p className="text-sm text-gray-400 mt-2">
-            Redirecting to homepage...
-          </p>
-        </div>
+        </main>
       </div>
     );
   }
