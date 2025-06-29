@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, User, Building, Mail, Bot, Phone, MessageSquare, Users, Plus, Zap, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { submitConsultation, type ConsultationData } from '@/lib/form-handler';
 
 interface ConsultationPageProps {
   onBack: () => void;
@@ -283,23 +282,8 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
     setIsSubmitting(true);
     
     try {
-      // Prepare data for submission
-      const consultationData: Omit<ConsultationData, 'id' | 'created_at' | 'updated_at'> = {
-        name: formData.name.trim(),
-        business_name: formData.businessName.trim() || undefined,
-        email: formData.email.trim(),
-        interested_services: formData.interestedServices,
-        other_service: formData.interestedServices.includes('others') ? formData.otherService.trim() : undefined,
-        problems: formData.problems.trim(),
-        description: formData.description.trim() || undefined
-      };
-
-      console.log('Submitting consultation data:', consultationData);
-
-      // Submit the form
-      const result = await submitConsultation(consultationData);
-      
-      console.log('Consultation submitted successfully:', result);
+      // Simulate form submission
+      console.log('Form submitted:', formData);
       
       // Track successful form submission
       trackFormSubmit('consultation_form');
@@ -313,8 +297,7 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
           services_selected: formData.interestedServices.length,
           has_business_name: !!formData.businessName,
           problems_length: formData.problems.length,
-          description_length: formData.description.length,
-          submission_id: result.id
+          description_length: formData.description.length
         }
       });
       
@@ -335,7 +318,6 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
       let errorMessage = 'There was an error submitting your request. Please try again.';
       
       if (error instanceof Error) {
-        // Use the specific error message from our form handler
         errorMessage = error.message;
       }
       
@@ -472,7 +454,7 @@ export function ConsultationPage({ onBack }: ConsultationPageProps) {
               className="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto"
               role="text"
             >
-              Ready to transform your business with AI automation? Tell us about your needs and we'll get back to you within 24 hours.
+              Tell us about your needs and we'll get back to you within 24 hours.
             </p>
           </div>
 
